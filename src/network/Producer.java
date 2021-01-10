@@ -1,5 +1,6 @@
 package network;
 
+import database.DistributorDB;
 import entities.EnergyType;
 
 public class Producer extends Player {
@@ -7,6 +8,27 @@ public class Producer extends Player {
     private int maxDistributors;
     private float price;
     private long energy;
+    private DistributorDB distributorDB = new DistributorDB();
+    private int numberOfDistributors;
+
+    public void calculateDistributors() {
+        numberOfDistributors = distributorDB.getDistributorsList().size();
+    }
+    public int getNumberOfDistributors() {
+        return numberOfDistributors;
+    }
+
+    public void setNumberOfDistributors(int numberOfDistributors) {
+        this.numberOfDistributors = numberOfDistributors;
+    }
+
+    public DistributorDB getDistributorDB() {
+        return distributorDB;
+    }
+
+    public void setDistributorDB(DistributorDB distributorDB) {
+        this.distributorDB = distributorDB;
+    }
 
     public EnergyType getEnergyType() {
         return energyType;

@@ -4,7 +4,7 @@ import network.Distributor;
 
 import java.util.ArrayList;
 
-public class DistributorDB {
+public class DistributorDB implements Observer {
     private ArrayList<Distributor> distributorsList = new ArrayList<>();
 
     public final ArrayList<Distributor> getDistributorsList() {
@@ -33,5 +33,12 @@ public class DistributorDB {
             }
         }
         return true;
+    }
+
+    @Override
+    public void update() {
+        for(Distributor distributor : distributorsList) {
+            distributor.update();
+        }
     }
 }

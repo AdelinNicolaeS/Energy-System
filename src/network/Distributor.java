@@ -1,6 +1,7 @@
 package network;
 
 import strategies.EnergyChoiceStrategyType;
+import strategies.Strategy;
 import utils.Utils;
 
 import java.util.ArrayList;
@@ -13,14 +14,32 @@ public class Distributor extends Player {
     private long price = 0;
     private long producerPrice;
     private long energy;
-    private EnergyChoiceStrategyType strategy;
+    private EnergyChoiceStrategyType producerStrategy;
+    private Strategy strategy;
+    private ArrayList<Producer> producers = new ArrayList<>();
 
-    public EnergyChoiceStrategyType getStrategy() {
+    public ArrayList<Producer> getProducers() {
+        return producers;
+    }
+
+    public void setProducers(ArrayList<Producer> producers) {
+        this.producers = producers;
+    }
+
+    public Strategy getStrategy() {
         return strategy;
     }
 
-    public void setStrategy(EnergyChoiceStrategyType strategy) {
+    public void setStrategy(Strategy strategy) {
         this.strategy = strategy;
+    }
+
+    public EnergyChoiceStrategyType getProducerStrategy() {
+        return producerStrategy;
+    }
+
+    public void setProducerStrategy(EnergyChoiceStrategyType producerStrategy) {
+        this.producerStrategy = producerStrategy;
     }
 
     public long getEnergy() {
@@ -109,6 +128,14 @@ public class Distributor extends Player {
         this.productionCost = productionCost;
     }
 
+    public final void calculateProductionCost() {
+        float cost = 0;
+        for(Producer producer : producers) {
+            cost += producer.getEnergy() * producer.getPrice();
+        }
+        productionCost = Math.round(Math.floor(cost/10));
+    }
+
     /**
      * adauga un nou contract si mareste numarul de contracte ale distribuitorului
      * @param consumer noul consumator al distribuitorului
@@ -133,5 +160,10 @@ public class Distributor extends Player {
         if (this.getBudget() < 0) {
             this.setBankrupt(true);
         }
+    }
+
+    public void update() {
+        // TODO
+        calculateProductionCost(); // noi producatori => nou cost de productie
     }
 }
