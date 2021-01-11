@@ -1,5 +1,6 @@
 package network;
 
+import database.ProducerDB;
 import strategies.EnergyChoiceStrategyType;
 import strategies.Strategy;
 import utils.Utils;
@@ -16,14 +17,27 @@ public class Distributor extends Player {
     private long energy;
     private EnergyChoiceStrategyType producerStrategy;
     private Strategy strategy;
-    private ArrayList<Producer> producers = new ArrayList<>();
+    private ArrayList<Producer> personalProducers = new ArrayList<>();
+    private ProducerDB producerDB; // baza de date la nivelul sistemului
 
-    public ArrayList<Producer> getProducers() {
-        return producers;
+    public ProducerDB getProducerDB() {
+        return producerDB;
     }
 
-    public void setProducers(ArrayList<Producer> producers) {
-        this.producers = producers;
+    public void setProducerDB(ProducerDB producerDB) {
+        this.producerDB = producerDB;
+    }
+
+    public void setPrice(long price) {
+        this.price = price;
+    }
+
+    public ArrayList<Producer> getPersonalProducers() {
+        return personalProducers;
+    }
+
+    public void setPersonalProducers(ArrayList<Producer> personalProducers) {
+        this.personalProducers = personalProducers;
     }
 
     public Strategy getStrategy() {
@@ -130,7 +144,7 @@ public class Distributor extends Player {
 
     public final void calculateProductionCost() {
         float cost = 0;
-        for(Producer producer : producers) {
+        for(Producer producer : personalProducers) {
             cost += producer.getEnergy() * producer.getPrice();
         }
         productionCost = Math.round(Math.floor(cost/10));
@@ -159,11 +173,22 @@ public class Distributor extends Player {
         setProducerPrice();
         if (this.getBudget() < 0) {
             this.setBankrupt(true);
+            for(Producer producer : personalProducers) {
+                producer.removeDistributor(this);
+            }
+            personalProducers.clear();
         }
     }
 
     public void update() {
-        // TODO
+        for(Producer producer : personalProducers) {
+            producer.removeDistributor(this);
+        }
+        personalProducers.clear();
+        strategy.applyStrategy(this, producerDB);
+        for(Producer producer : personalProducers) {
+            producer.addDistributor(this);
+        }
         calculateProductionCost(); // noi producatori => nou cost de productie
     }
 }

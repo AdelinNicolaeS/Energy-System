@@ -25,7 +25,7 @@ public class ProducerDB extends Observable {
 
     @Override
     public void notifyObservers() {
-        for(Distributor distributor : observers.getDistributorsList()) {
+        for(Distributor distributor : this.getObservers().getDistributorsList()) {
             distributor.update();
         }
     }

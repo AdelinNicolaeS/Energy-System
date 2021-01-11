@@ -3,15 +3,31 @@ package network;
 import database.DistributorDB;
 import entities.EnergyType;
 
+import java.util.ArrayList;
+
 public class Producer extends Player {
     private EnergyType energyType;
-    private int maxDistributors;
-    private float price;
+    private long maxDistributors;
+    private double price;
     private long energy;
     private DistributorDB distributorDB = new DistributorDB();
-    private int numberOfDistributors;
+    private int numberOfDistributors = 0;
+    private ArrayList<MonthlyStats> monthlyStats = new ArrayList<>();
 
-    public void calculateDistributors() {
+    public ArrayList<MonthlyStats> getMonthlyStats() {
+        return monthlyStats;
+    }
+
+    public void setMonthlyStats(ArrayList<MonthlyStats> monthlyStats) {
+        this.monthlyStats = monthlyStats;
+    }
+
+    public void addDistributor(Distributor distributor) {
+        distributorDB.getDistributorsList().add(distributor);
+        numberOfDistributors = distributorDB.getDistributorsList().size();
+    }
+    public void removeDistributor(Distributor distributor) {
+        distributorDB.getDistributorsList().remove(distributor);
         numberOfDistributors = distributorDB.getDistributorsList().size();
     }
     public int getNumberOfDistributors() {
@@ -38,19 +54,19 @@ public class Producer extends Player {
         this.energyType = energyType;
     }
 
-    public int getMaxDistributors() {
+    public long getMaxDistributors() {
         return maxDistributors;
     }
 
-    public void setMaxDistributors(int maxDistributors) {
+    public void setMaxDistributors(long maxDistributors) {
         this.maxDistributors = maxDistributors;
     }
 
-    public float getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(float price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 
@@ -61,4 +77,5 @@ public class Producer extends Player {
     public void setEnergy(long energy) {
         this.energy = energy;
     }
+
 }

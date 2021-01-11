@@ -13,7 +13,7 @@ public class QuantityStrategy implements Strategy {
         while(distributor.getEnergy() > countEnergy) {
             countEnergy += producerDB1.getProducersList().get(i).getEnergy();
             i++;
-            distributor.getProducers().add(producerDB1.getProducersList().get(i));
+            distributor.getPersonalProducers().add(producerDB1.getProducersList().get(i));
         }
     }
 }

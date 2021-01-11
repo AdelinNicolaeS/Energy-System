@@ -1,3 +1,7 @@
+import readdata.Input;
+
+import java.io.FileReader;
+
 /**
  * Entry point to the simulation
  */
@@ -12,5 +16,19 @@ public final class Main {
      * @throws Exception might error when reading/writing/opening files, parsing JSON
      */
     public static void main(final String[] args) throws Exception {
+        Input input = Input.getInstance();
+        input.init();
+        input.parseInput(new FileReader(args[0]));
+        input.obtainConsumers();
+        input.obtainDistributors();
+        input.obtainProducers();
+        for (int i = 0; i <= input.getNumberOfTurns(); i++) {
+            boolean ok = input.parseRound(i);
+            if (!ok) {
+                break;
+            }
+        }
+        input.printJSON(args[1]);
+        input.clear();
     }
 }

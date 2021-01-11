@@ -26,4 +26,13 @@ public enum EnergyType {
     public boolean isRenewable() {
         return renewable;
     }
+
+    public static EnergyType convertString(String type) {
+        for (EnergyType energyType : EnergyType.values()) {
+            if (energyType.getLabel().equals(type)) {
+                return energyType;
+            }
+        }
+        return null;
+    }
 }
