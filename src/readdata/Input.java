@@ -244,6 +244,8 @@ public final class Input {
         }
     }
     public void changesProducers(final int i) {
+        producerDB.getChangedProducers().clear();
+        producerDB.getObservers().clear();
         JSONObject element = (JSONObject) monthlyUpdates.get(i - 1);
         JSONArray producerChanges = (JSONArray) element.get(Utils.PRODUCER_CHANGES);
         for (Object object : producerChanges) {
@@ -252,9 +254,10 @@ public final class Input {
             long energy = (long) jsonObject.get(Utils.ENERGY_PER_DISTRIBUTOR);
             Producer producer = producerDB.getProducersList().get((int) id);
             producer.setEnergy(energy);
-            producerDB.setChangedProducer(producer);
-            producerDB.notifyObservers();
+            producerDB.addChangedProducer(producer);
+            //producerDB.notifyObservers();
         }
+        producerDB.notifyObservers();
     }
 
     /**

@@ -3,32 +3,39 @@ package database;
 import network.Distributor;
 import network.Producer;
 
-public abstract class Observable {
-    private DistributorDB observers = new DistributorDB();
-    private Producer changedProducer = new Producer();
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.TreeSet;
 
-    public DistributorDB getObservers() {
+
+public abstract class Observable {
+    private Set<Distributor> observers = new TreeSet<>(new IDSort());
+    //private Producer changedProducer = new Producer();
+    private ArrayList<Producer> changedProducers = new ArrayList<>();
+
+    public Set<Distributor> getObservers() {
         return observers;
     }
 
-    public void setObservers(DistributorDB observers) {
+    public void setObservers(Set<Distributor> observers) {
         this.observers = observers;
     }
 
-    public Producer getChangedProducer() {
-        return changedProducer;
+    public ArrayList<Producer> getChangedProducers() {
+        return changedProducers;
     }
 
-    public void setChangedProducer(Producer changedProducer) {
-        this.changedProducer = changedProducer;
-        setObservers(this.changedProducer.getDistributorDB());
+    public void addChangedProducer(Producer producer) {
+        changedProducers.add(producer);
+        //observers = new DistributorDB(this.changedProducer.getDistributorDB().getDistributorsList());
+        observers.addAll(producer.getDistributorDB().getDistributorsList());
     }
 
     public void addObserver(Distributor distributor) {
-        observers.getDistributorsList().add(distributor);
+        observers.add(distributor);
     }
     public void removeObserver(Distributor distributor) {
-        observers.getDistributorsList().remove(distributor);
+        observers.remove(distributor);
     }
 
     public abstract void notifyObservers();
