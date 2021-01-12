@@ -8,12 +8,10 @@ public class QuantitySort implements Comparator<Producer> {
 
     @Override
     public int compare(Producer o1, Producer o2) {
-        if(o1.getEnergy() > o2.getEnergy()) {
-            return 1;
+        int result = Long.compare(o1.getEnergy(), o2.getEnergy());
+        if(result == 0) {
+            return Long.compare(o1.getId(), o2.getId());
         }
-        if(o2.getEnergy() < o2.getEnergy()) {
-            return -1;
-        }
-        return 0;
+        return -result;
     }
 }

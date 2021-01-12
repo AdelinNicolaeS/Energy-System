@@ -144,6 +144,7 @@ public final class Input {
             String type = (String) jsonObject.get(Utils.PRODUCER_STRATEGY);
             StrategyFactory strategyFactory = new StrategyFactory();
             Strategy strategy = strategyFactory.createStrategy(type);
+            EnergyChoiceStrategyType strategyType = EnergyChoiceStrategyType.convertString(type);
 
             player.setId(id);
             player.setBudget(initialBudget);
@@ -151,6 +152,7 @@ public final class Input {
             ((Distributor) player).setInfrastructureCost(infrastructureCost);
             ((Distributor) player).setEnergy(energy);
             ((Distributor) player).setStrategy(strategy);
+            ((Distributor) player).setProducerStrategy(strategyType);
             distributorDB.getDistributorsList().add((Distributor) player);
         }
     }
@@ -268,6 +270,11 @@ public final class Input {
         if (i > 0) {
             changesConsumersDistributors(i);
         }
+        if (i == 0) {
+            for (Distributor distributor : distributorDB.getDistributorsList()) {
+                distributor.update();
+            }
+        }
         for (Distributor distributor : distributorDB.getDistributorsList()) {
             distributor.setNumberOfClients(distributor.getClients().size());
             distributor.setPrice();
@@ -293,15 +300,15 @@ public final class Input {
         }
         if (i > 0) {
             changesProducers(i);
-        }
-        for (Producer producer : producerDB.getProducersList()) {
-            MonthlyStats monthlyStats = new MonthlyStats();
-            monthlyStats.setMonth(i);
-            for(Distributor distributor : producer.getDistributorDB().getDistributorsList()) {
-                monthlyStats.getIds().add((int) distributor.getId());
+            for (Producer producer : producerDB.getProducersList()) {
+                MonthlyStats monthlyStats = new MonthlyStats();
+                monthlyStats.setMonth(i);
+                for(Distributor distributor : producer.getDistributorDB().getDistributorsList()) {
+                    monthlyStats.getIds().add((int) distributor.getId());
+                }
+                Collections.sort(monthlyStats.getIds());
+                producer.getMonthlyStats().add(monthlyStats);
             }
-            Collections.sort(monthlyStats.getIds());
-            producer.getMonthlyStats().add(monthlyStats);
         }
         return true;
     }
@@ -333,7 +340,13 @@ public final class Input {
             //noinspection unchecked
             jsonObject.put("id", distributor.getId());
             //noinspection unchecked
+            jsonObject.put("energyNeededKW", distributor.getEnergy());
+            //noinspection unchecked
+            jsonObject.put("contractCost", distributor.getPrice());
+            //noinspection unchecked
             jsonObject.put("budget", distributor.getBudget());
+            //noinspection unchecked
+            jsonObject.put("producerStrategy", distributor.getProducerStrategy().label);
             //noinspection unchecked
             jsonObject.put("isBankrupt", distributor.isBankrupt());
             JSONArray contracts = new JSONArray();
@@ -358,7 +371,7 @@ public final class Input {
             jsonObject.put("id", producer.getId());
             jsonObject.put("maxDistributors", producer.getMaxDistributors());
             jsonObject.put("priceKW", producer.getPrice());
-            jsonObject.put("energyType", producer.getEnergyType());
+            jsonObject.put("energyType", producer.getEnergyType().getLabel());
             jsonObject.put("energyPerDistributor", producer.getEnergy());
             JSONArray stats = new JSONArray();
             for (MonthlyStats monthlyStats : producer.getMonthlyStats()) {

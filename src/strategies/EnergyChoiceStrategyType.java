@@ -12,4 +12,13 @@ public enum EnergyChoiceStrategyType {
     EnergyChoiceStrategyType(String label) {
         this.label = label;
     }
+
+    public static EnergyChoiceStrategyType convertString(String type) {
+        for (EnergyChoiceStrategyType strategyType  : EnergyChoiceStrategyType.values()) {
+            if (strategyType.label.equals(type)) {
+                return strategyType;
+            }
+        }
+        return null;
+    }
 }
