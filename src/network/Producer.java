@@ -5,7 +5,7 @@ import entities.EnergyType;
 
 import java.util.ArrayList;
 
-public class Producer extends Player {
+public final class Producer extends Player {
     private EnergyType energyType;
     private long maxDistributors;
     private double price;
@@ -22,15 +22,25 @@ public class Producer extends Player {
         this.monthlyStats = monthlyStats;
     }
 
+    /**
+     * adauga un nou distribuitor in lista de distribuitori
+     * carora producatorul le furnizeaza energie
+     * @param distributor noul client ce va fi adaugat in lista
+     */
     public void addDistributor(Distributor distributor) {
         distributorDB.getDistributorsList().add(distributor);
         numberOfDistributors = distributorDB.getDistributorsList().size();
     }
+
+    /**
+     * elimina un distribuitor din lista celor carora le furnizeaza energie
+     * @param distributor clientul ce va fi eliminat din lista contractelor
+     */
     public void removeDistributor(Distributor distributor) {
         distributorDB.getDistributorsList().remove(distributor);
         numberOfDistributors = distributorDB.getDistributorsList().size();
     }
-    public int getNumberOfDistributors() {
+    public int getDistributors() {
         return numberOfDistributors;
     }
 

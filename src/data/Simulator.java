@@ -1,10 +1,15 @@
-package readdata;
+package data;
 
 import database.ConsumerDB;
 import database.DistributorDB;
 import database.ProducerDB;
 import entities.EnergyType;
-import network.*;
+import network.Consumer;
+import network.Distributor;
+import network.MonthlyStats;
+import network.Player;
+import network.PlayersFactory;
+import network.Producer;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -15,19 +20,26 @@ import strategies.StrategyFactory;
 import utils.Utils;
 
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collections;
 
-public final class Input {
+public final class Simulator {
     private JSONParser jsonParser;
-    private static final Input INSTANCE = new Input();
+    private static final Simulator INSTANCE = new Simulator();
     private long numberOfTurns;
     private JSONObject initialData;
     private JSONArray monthlyUpdates;
     private ConsumerDB consumerDB;
     private DistributorDB distributorDB;
     private ProducerDB producerDB;
+
+    public ProducerDB getProducerDB() {
+        return producerDB;
+    }
+
+    public void setProducerDB(ProducerDB producerDB) {
+        this.producerDB = producerDB;
+    }
 
     public JSONParser getJsonParser() {
         return jsonParser;
@@ -77,7 +89,7 @@ public final class Input {
         this.distributorDB = distributorDB;
     }
 
-    private Input() {
+    private Simulator() {
     }
 
     /**
@@ -91,7 +103,7 @@ public final class Input {
         distributorDB = new DistributorDB();
         producerDB = new ProducerDB();
     }
-    public static Input getInstance() {
+    public static Simulator getInstance() {
         return INSTANCE;
     }
 
@@ -156,9 +168,13 @@ public final class Input {
             distributorDB.getDistributorsList().add((Distributor) player);
         }
     }
+
+    /**
+     * parcurge setul de date si genereaza setul de producatori
+     */
     public void obtainProducers() {
         JSONArray jsonArray = (JSONArray) initialData.get(Utils.PRODUCERS);
-        for(Object object : jsonArray) {
+        for (Object object : jsonArray) {
             JSONObject jsonObject = (JSONObject) object;
             PlayersFactory playersFactory = new PlayersFactory();
             Player player = playersFactory.createPlayer(Utils.PRODUCER);
@@ -175,7 +191,7 @@ public final class Input {
             ((Producer) player).setEnergy(energy);
             producerDB.getProducersList().add((Producer) player);
         }
-       for(Distributor distributor : distributorDB.getDistributorsList()) {
+       for (Distributor distributor : distributorDB.getDistributorsList()) {
            distributor.setProducerDB(producerDB);
        }
     }
@@ -186,36 +202,6 @@ public final class Input {
      * setului de consumatori
      * @param i despre a cata luna se vorbeste
      */
-    /*public void applyChanges(final int i) {
-        JSONObject element = (JSONObject) monthlyUpdates.get(i - 1);
-        JSONArray newConsumers = (JSONArray) element.get(Utils.NEW_CONSUMERS);
-        JSONArray costsChanges = (JSONArray) element.get(Utils.COSTS_CHANGES);
-        for (Object object : newConsumers) {
-            JSONObject jsonObject = (JSONObject) object;
-            PlayersFactory playersFactory = new PlayersFactory();
-            Player player = playersFactory.createPlayer(Utils.CONSUMERS);
-            Consumer consumer = (Consumer) player;
-            long id = (long) jsonObject.get(Utils.ID);
-            long initialBudget = (long) jsonObject.get(Utils.INITIAL_BUDGET);
-            long monthlyIncome = (long) jsonObject.get(Utils.MONTHLY_INCOME);
-            consumer.setId(id);
-            consumer.setBudget(initialBudget);
-            consumer.setMonthlyIncome(monthlyIncome);
-            consumerDB.getConsumersList().add(consumer);
-        }
-        for (Object object : costsChanges) {
-            JSONObject jsonObject = (JSONObject) object;
-            long id = (long) jsonObject.get(Utils.ID);
-            long infrastructureCost = (long) jsonObject.get("infrastructureCost");
-            long productionCost = (long) jsonObject.get("productionCost");
-            Distributor distributor = distributorDB.getDistributorsList().get((int) id);
-            distributor.setInfrastructureCost(infrastructureCost);
-            distributor.setProductionCost(productionCost);
-            distributor.setPrice();
-            distributor.setProducerPrice();
-        }
-    }
-    */
     public void changesConsumersDistributors(final int i) {
         JSONObject element = (JSONObject) monthlyUpdates.get(i - 1);
         JSONArray newConsumers = (JSONArray) element.get(Utils.NEW_CONSUMERS);
@@ -243,8 +229,13 @@ public final class Input {
             distributor.setProducerPrice();
         }
     }
+
+    /**
+     * aplica schimbarile care se produc in fiecare luna de la input
+     * asupra producatorilor
+     * @param i despre a cata luna se vorbeste
+     */
     public void changesProducers(final int i) {
-        producerDB.getChangedProducers().clear();
         producerDB.getObservers().clear();
         JSONObject element = (JSONObject) monthlyUpdates.get(i - 1);
         JSONArray producerChanges = (JSONArray) element.get(Utils.PRODUCER_CHANGES);
@@ -254,8 +245,7 @@ public final class Input {
             long energy = (long) jsonObject.get(Utils.ENERGY_PER_DISTRIBUTOR);
             Producer producer = producerDB.getProducersList().get((int) id);
             producer.setEnergy(energy);
-            producerDB.addChangedProducer(producer);
-            //producerDB.notifyObservers();
+            producerDB.addAllObservers(producer);
         }
         producerDB.notifyObservers();
     }
@@ -273,7 +263,7 @@ public final class Input {
         if (i > 0) {
             changesConsumersDistributors(i);
         }
-        if (i == 0) {
+        if (i == 0) {  // in runda initiala, distribuitorii isi aleg producatorii la inceput
             for (Distributor distributor : distributorDB.getDistributorsList()) {
                 distributor.update();
             }
@@ -306,7 +296,7 @@ public final class Input {
             for (Producer producer : producerDB.getProducersList()) {
                 MonthlyStats monthlyStats = new MonthlyStats();
                 monthlyStats.setMonth(i);
-                for(Distributor distributor : producer.getDistributorDB().getDistributorsList()) {
+                for (Distributor distributor : producer.getDistributorDB().getDistributorsList()) {
                     monthlyStats.getIds().add((int) distributor.getId());
                 }
                 Collections.sort(monthlyStats.getIds());
@@ -314,87 +304,6 @@ public final class Input {
             }
         }
         return true;
-    }
-
-    /**
-     * printeaza rezultatul sub forma unui fisier JSON
-     * @param args fisierul de iesire sub forma de String
-     * @throws IOException trateaza cazurile de nereusita
-     */
-    public void printJSON(final String args) throws IOException {
-        FileWriter fileWriter = new FileWriter(args);
-        JSONObject output = new JSONObject();
-        JSONArray consumersArray = new JSONArray();
-        JSONArray distributorArray = new JSONArray();
-        JSONArray producerArray = new JSONArray();
-        for (Consumer consumer : consumerDB.getConsumersList()) {
-            JSONObject jsonObject = new JSONObject();
-            //noinspection unchecked
-            jsonObject.put("id", consumer.getId());
-            //noinspection unchecked
-            jsonObject.put("isBankrupt", consumer.isBankrupt());
-            //noinspection unchecked
-            jsonObject.put("budget", consumer.getBudget());
-            //noinspection unchecked
-            consumersArray.add(jsonObject);
-        }
-        for (Distributor distributor : distributorDB.getDistributorsList()) {
-            JSONObject jsonObject = new JSONObject();
-            //noinspection unchecked
-            jsonObject.put("id", distributor.getId());
-            //noinspection unchecked
-            jsonObject.put("energyNeededKW", distributor.getEnergy());
-            //noinspection unchecked
-            jsonObject.put("contractCost", distributor.getPrice());
-            //noinspection unchecked
-            jsonObject.put("budget", distributor.getBudget());
-            //noinspection unchecked
-            jsonObject.put("producerStrategy", distributor.getProducerStrategy().label);
-            //noinspection unchecked
-            jsonObject.put("isBankrupt", distributor.isBankrupt());
-            JSONArray contracts = new JSONArray();
-            for (Consumer consumer : distributor.getClients()) {
-                JSONObject object = new JSONObject();
-                //noinspection unchecked
-                object.put("consumerId", consumer.getId());
-                //noinspection unchecked
-                object.put("price", consumer.getPrice());
-                //noinspection unchecked
-                object.put("remainedContractMonths", consumer.getRemainedContractMonths());
-                //noinspection unchecked
-                contracts.add(object);
-            }
-            //noinspection unchecked
-            jsonObject.put("contracts", contracts);
-            //noinspection unchecked
-            distributorArray.add(jsonObject);
-        }
-        for (Producer producer : producerDB.getProducersList()) {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("id", producer.getId());
-            jsonObject.put("maxDistributors", producer.getMaxDistributors());
-            jsonObject.put("priceKW", producer.getPrice());
-            jsonObject.put("energyType", producer.getEnergyType().getLabel());
-            jsonObject.put("energyPerDistributor", producer.getEnergy());
-            JSONArray stats = new JSONArray();
-            for (MonthlyStats monthlyStats : producer.getMonthlyStats()) {
-                JSONObject object = new JSONObject();
-                object.put("month", monthlyStats.getMonth());
-                object.put("distributorsIds", monthlyStats.getIds());
-                stats.add(object);
-            }
-            jsonObject.put("monthlyStats", stats);
-            producerArray.add(jsonObject);
-        }
-        //noinspection unchecked
-        output.put("consumers", consumersArray);
-        //noinspection unchecked
-        output.put("distributors", distributorArray);
-        //noinspection unchecked
-        output.put("energyProducers", producerArray);
-        fileWriter.write(output.toJSONString() + "\n\n");
-        fileWriter.flush();
-        fileWriter.close();
     }
 
     /**

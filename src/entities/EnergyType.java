@@ -27,6 +27,12 @@ public enum EnergyType {
         return renewable;
     }
 
+    /**
+     * afla corespundentul din enum pentru label-ul
+     * dat ca parametru
+     * @param type tipul cerut de utilizator
+     * @return EnergyType-ul corespunzator
+     */
     public static EnergyType convertString(String type) {
         for (EnergyType energyType : EnergyType.values()) {
             if (energyType.getLabel().equals(type)) {

@@ -34,4 +34,5 @@ public final class Utils {
     public static final String PRICE = "PRICE";
     public static final String QUANTITY = "QUANTITY";
     public static final String PRODUCER_STRATEGY = "producerStrategy";
+    public static final int PRODUCTION_RATE = 10;
 }

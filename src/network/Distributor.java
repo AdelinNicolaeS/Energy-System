@@ -7,7 +7,7 @@ import utils.Utils;
 
 import java.util.ArrayList;
 
-public class Distributor extends Player {
+public final class Distributor extends Player {
     private long contractLength;
     private long infrastructureCost;
     private long productionCost;
@@ -69,38 +69,38 @@ public class Distributor extends Player {
     /**
      * actualizeaza numarul de contracte
      */
-    public final void calculateNumberClients() {
+    public void calculateNumberClients() {
         numberOfClients = clients.size();
     }
 
-    public final long getProducerPrice() {
+    public long getProducerPrice() {
         return producerPrice;
     }
 
     /**
      * recalculeaza cheltuielile lunare ale distribuitorului
      */
-    public final void setProducerPrice() {
+    public void setProducerPrice() {
         producerPrice = infrastructureCost + productionCost * numberOfClients;
     }
 
-    public final long getNumberOfClients() {
+    public long getNumberOfClients() {
         return numberOfClients;
     }
 
-    public final void setNumberOfClients(final long numberOfClients) {
+    public void setNumberOfClients(final long numberOfClients) {
         this.numberOfClients = numberOfClients;
     }
 
-    public final ArrayList<Consumer> getClients() {
+    public ArrayList<Consumer> getClients() {
         return clients;
     }
 
-    public final void setClients(final ArrayList<Consumer> clients) {
+    public void setClients(final ArrayList<Consumer> clients) {
         this.clients = clients;
     }
 
-    public final long getPrice() {
+    public long getPrice() {
         return price;
     }
 
@@ -118,36 +118,40 @@ public class Distributor extends Player {
         price += Math.round(Math.floor(Utils.PROFIT_PERCENT * productionCost));
     }
 
-    public final long getContractLength() {
+    public long getContractLength() {
         return contractLength;
     }
 
-    public final void setContractLength(final long contractLength) {
+    public void setContractLength(final long contractLength) {
         this.contractLength = contractLength;
     }
 
-    public final long getInfrastructureCost() {
+    public long getInfrastructureCost() {
         return infrastructureCost;
     }
 
-    public final void setInfrastructureCost(final long initialInfrastructureCost) {
+    public void setInfrastructureCost(final long initialInfrastructureCost) {
         this.infrastructureCost = initialInfrastructureCost;
     }
 
-    public final long getProductionCost() {
+    public long getProductionCost() {
         return productionCost;
     }
 
-    public final void setProductionCost(final long productionCost) {
+    public void setProductionCost(final long productionCost) {
         this.productionCost = productionCost;
     }
 
-    public final void calculateProductionCost() {
+    /**
+     * recalculeaza costul de productie dupa modificarea
+     * listei de furnizori
+     */
+    public void calculateProductionCost() {
         float cost = 0;
-        for(Producer producer : personalProducers) {
+        for (Producer producer : personalProducers) {
             cost += producer.getEnergy() * producer.getPrice();
         }
-        productionCost = Math.round(Math.floor(cost/10));
+        productionCost = Math.round(Math.floor(cost / Utils.PRODUCTION_RATE));
     }
 
     /**
@@ -173,20 +177,25 @@ public class Distributor extends Player {
         setProducerPrice();
         if (this.getBudget() < 0) {
             this.setBankrupt(true);
-            for(Producer producer : personalProducers) {
+            for (Producer producer : personalProducers) {
                 producer.removeDistributor(this);
             }
             personalProducers.clear();
         }
     }
 
+    /**
+     * aplica strategia aleasa pentru a gasi noi producatori
+     * actualizeaza listele de producatori si distribuitori ale
+     * entitatilor implicate
+     */
     public void update() {
-        for(Producer producer : personalProducers) {
+        for (Producer producer : personalProducers) {
             producer.removeDistributor(this);
         }
         personalProducers.clear();
-        strategy.applyStrategy(this, producerDB);
-        for(Producer producer : personalProducers) {
+        strategy.applyStrategy(this);
+        for (Producer producer : personalProducers) {
             producer.addDistributor(this);
         }
         calculateProductionCost(); // noi producatori => nou cost de productie

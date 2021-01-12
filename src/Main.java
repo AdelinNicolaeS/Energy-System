@@ -1,4 +1,8 @@
-import readdata.Input;
+import data.Output;
+import data.Simulator;
+import data.WriterConsumer;
+import data.WriterDistributor;
+import data.WriterProducer;
 
 import java.io.FileReader;
 
@@ -16,19 +20,23 @@ public final class Main {
      * @throws Exception might error when reading/writing/opening files, parsing JSON
      */
     public static void main(final String[] args) throws Exception {
-        Input input = Input.getInstance();
-        input.init();
-        input.parseInput(new FileReader(args[0]));
-        input.obtainConsumers();
-        input.obtainDistributors();
-        input.obtainProducers();
-        for (int i = 0; i <= input.getNumberOfTurns(); i++) {
-            boolean ok = input.parseRound(i);
+        Simulator simulator = Simulator.getInstance();
+        simulator.init();
+        simulator.parseInput(new FileReader(args[0]));
+        simulator.obtainConsumers();
+        simulator.obtainDistributors();
+        simulator.obtainProducers();
+        for (int i = 0; i <= simulator.getNumberOfTurns(); i++) {
+            boolean ok = simulator.parseRound(i);
             if (!ok) {
                 break;
             }
         }
-        input.printJSON(args[1]);
-        input.clear();
+        WriterConsumer writerConsumer = new WriterConsumer(simulator.getConsumerDB());
+        WriterDistributor writerDistributor = new WriterDistributor(simulator.getDistributorDB());
+        WriterProducer writerProducer = new WriterProducer(simulator.getProducerDB());
+        Output output = new Output(writerConsumer, writerDistributor, writerProducer);
+        output.printJSON(args[1]);
+        simulator.clear();
     }
 }

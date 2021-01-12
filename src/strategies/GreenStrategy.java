@@ -3,17 +3,17 @@ package strategies;
 import database.ProducerDB;
 import network.Distributor;
 
-public class GreenStrategy implements Strategy {
+public final class GreenStrategy implements Strategy {
     @Override
-    public void applyStrategy(Distributor distributor, ProducerDB producerDB) {
+    public void applyStrategy(Distributor distributor) {
         int countEnergy = 0, i = 0;
-        ProducerDB producerDB1 = new ProducerDB(producerDB.getProducersList());
-        producerDB1.getProducersList().removeIf((v) -> v.getMaxDistributors() == v.getNumberOfDistributors());
-        producerDB1.getProducersList().sort(new GreenSort());
-        while(distributor.getEnergy() > countEnergy) {
-            countEnergy += producerDB1.getProducersList().get(i).getEnergy();
+        ProducerDB db = new ProducerDB(distributor.getProducerDB().getProducersList());
+        db.getProducersList().removeIf((v) -> v.getMaxDistributors() == v.getDistributors());
+        db.getProducersList().sort(new GreenSort());
+        while (distributor.getEnergy() > countEnergy) {
+            countEnergy += db.getProducersList().get(i).getEnergy();
             i++;
-            distributor.getPersonalProducers().add(producerDB1.getProducersList().get(i - 1));
+            distributor.getPersonalProducers().add(db.getProducersList().get(i - 1));
         }
     }
 }

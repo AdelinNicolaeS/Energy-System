@@ -4,14 +4,14 @@ import network.Distributor;
 
 import java.util.ArrayList;
 
-public class DistributorDB implements Observer {
+public final class DistributorDB implements Observer {
     private ArrayList<Distributor> distributorsList = new ArrayList<>();
 
-    public final ArrayList<Distributor> getDistributorsList() {
+    public ArrayList<Distributor> getDistributorsList() {
         return distributorsList;
     }
 
-    public final void setDistributorsList(final ArrayList<Distributor> distributorsList) {
+    public void setDistributorsList(final ArrayList<Distributor> distributorsList) {
         this.distributorsList = distributorsList;
     }
 
@@ -26,7 +26,7 @@ public class DistributorDB implements Observer {
      * verific daca toti distribuitorii sunt in faliment
      * @return valoarea de adevar a acestei presupuneri
      */
-    public final boolean allBankrupt() {
+    public boolean allBankrupt() {
         for (Distributor distributor : distributorsList) {
             if (!distributor.isBankrupt()) {
                 return false;
@@ -37,7 +37,7 @@ public class DistributorDB implements Observer {
 
     @Override
     public void update() {
-        for(Distributor distributor : distributorsList) {
+        for (Distributor distributor : distributorsList) {
             distributor.update();
         }
     }

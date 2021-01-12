@@ -5,7 +5,7 @@ import network.Producer;
 
 import java.util.ArrayList;
 
-public class ProducerDB extends Observable {
+public final class ProducerDB extends Observable {
     private ArrayList<Producer> producersList = new ArrayList<>();
 
     public ArrayList<Producer> getProducersList() {
@@ -25,7 +25,7 @@ public class ProducerDB extends Observable {
 
     @Override
     public void notifyObservers() {
-        for(Distributor distributor : this.getObservers()) {
+        for (Distributor distributor : this.getObservers()) {
             distributor.update();
         }
     }
