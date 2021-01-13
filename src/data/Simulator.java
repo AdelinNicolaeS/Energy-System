@@ -100,7 +100,7 @@ public final class Simulator {
         distributorDB = new DistributorDB();
         producerDB = new ProducerDB();
     }
-    
+
     /**
      * calculeaza atributele pentru principalele componente ale fisierului JSON
      * @param fileReader fisierul din care se parcurge
@@ -299,20 +299,4 @@ public final class Simulator {
         }
         return true;
     }
-
-    /**
-     * elibereaza memoria alocata la testul curent
-     * fara aceasta metoda, informatia s-ar pastra
-     * pe tot parcursul rularii testelor
-     */
-    public void clear() {
-        jsonParser = null;
-        numberOfTurns = 0;
-        initialData = null;
-        monthlyUpdates = null;
-        consumerDB = null;
-        distributorDB = null;
-        producerDB = null;
-    }
-
 }

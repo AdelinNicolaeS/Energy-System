@@ -37,6 +37,5 @@ public final class Main {
         WriterProducer writerProducer = new WriterProducer(simulator.getProducerDB());
         Output output = new Output(writerConsumer, writerDistributor, writerProducer);
         output.printJSON(args[1]);
-        simulator.clear();
     }
 }

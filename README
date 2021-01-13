@@ -1,0 +1,65 @@
+Link repository: https://github.com/AdelinNicolaeS/Proiect-Poo
+Nume si grupa: Stanca Adelin-Nicolae 321CA
+In rezolvarea proiectului, pe langa conceptele de Singleton si Factory Pattern
+realizate la etapa 1, am adaugat conceptele de Strategy si Observer Pattern,
+impreuna cu o noua entitate in sistemul energeric: producatorii. Astfel, am
+stabilit o relatie de tipul Observer - Observable intre distribuitori si
+producatorii carora datele de la intrare le sunt schimbate intr-o anumita luna.
+Pentru a implementa acest pattern, am creat propria interfata Observer cu metoda
+update(), al carei rol este de a obliga observatorul/distribuitorul afectat de
+schimbarile producatorilor sa isi gaseasca noi producatori in functie de strategie.
+Am creat de asemenea si clasa abstracta Observable care retine toti distribuitorii
+afectati intr-o luna de schimbarile de la nivelul producatorilor, clasa ce contine
+metodele specifice addObserver si removeObserver, precum si o metoda abstracta
+notifyObservers() ce va fi implementata special in clasa ProducerDB. Referitor la
+Strategy Pattern, am creat o interfata Strategy ce va fi data ca atribut unui
+distributor, dupa care am implementat separat cele 3 tipuri de strategii ce
+implementeaza aceeasi interfata.
+Referitor la pattern-urile de la prima etapa, am corectat Singleton Pattern pe care
+l-am unit cu Factory Pattern, creand o StrategyFactory si o PlayersFactory. 
+Pentru realizarea programului, am creat urmatoarele package-uri:
+**data**
+Contine o interfata Writer si 3 clase care o implementeaza, fiecare avand rolul in a
+transforma datele obtinute de program intr-o forma JSON printabila in fisier. Clasa
+Output foloseste cele 3 clase de mai sus si are rolul de a scrie in fisierul cerut
+rezultatele intr-o forma JSON convenabila. Clasa Simulator preia datele initiale din
+fsierele de intrare, marcheaza schimbarile ce au loc lunar si aplica o noua runda
+tuturor entitatilor implicate, obtinand la final datele ce vor fi afisate.
+**database**
+Prezinta cele 3 clase ConsumerDB, DistributorDB si ProducerDB care vor retine toate
+entitatile implicate si intre care va avea loc relatia Observers - Observable (ultimele
+doua). Pentru implementare, am decis ca fiecare producator trebuie sa contina o lista cu
+distribuitorii carora le ofera energie, iar in momentul cand un producator sufera
+schimbari la nivelul informatiilor, toti distribuitorii sunt pusi in lista de observers
+care va apela metoda update() pentru fiecare in parte (dupa ID-uri). La acestea se adauga
+interfata Observer si clasa abstracta Observable.
+**entities**
+Este alcatuita din Enum-ul EnergyType la care am adaugat metoda static convertString
+pentru a prelua informatia din fisierul de intrare si de a o converti in tipul de energie
+corespunzator.
+**network**
+Contine clasa abstracta Player din care se extind cele 3 tipuri de jucatori prezenti
+in joc. Prin aceasta clasa, se poate implementa si Factory Pattern, folosind clasa
+PlayersFactory pe care am transformat-o fata de etapa trecuta, avand caracteristica
+de Singleton. Fata de etapa precedenta, in clasa Distributor am adaugat o lista de
+producatori care ii furnizeaza acestuia energie, am modificat modul de calcul al
+costului de productie si am adaugat metoda update() care elimina distribuitorul
+din lista producatorului, goleste lista de furnizori ai distribuitorului si aplica
+strategia preferata pentru gasirea noilor furnizori. Clasa MonthlyStats are rolul de
+a retine pentru fiecare luna cine au fost distribuitorii carora li s-a furnizat
+energie.
+Noua clasa Producer retine pe langa datele din intrare si informatii cu privire
+la numarul de distribuitori ai producatorului, precum si care sunt acestia.
+**strategies**
+Contine clasele care implementeaza sortarile specifice fiecarei strategii, cat si
+strategiile in sine, toate aflate sub umbrela interfetei Strategy. Astfel, pentru
+a aplica strategia dorita, vom crea o noua baza de date de producatori distincta
+ce va fi ordonata folosind functia compare() din clasele prezente in package, apoi
+vom adauga un nou producator in lista de producatori pana cand cantitate de energie
+necesara va fi total acoperita. Clasa StrategyFactory genereaza strategia ceruta,
+folosindu-se si de Singleton Pattern.
+
+Main.java primeste un nou simulator caruia i se vor adauga datele din input, dupa
+care se va porni simularea propriu-zisa a fiecarui runde in parte, iar in final
+rezultatele vor fi printate in fisierul de iesire cu ajutorul claselor de tip
+Writer si a clasei Output.
