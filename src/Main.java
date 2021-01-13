@@ -20,7 +20,7 @@ public final class Main {
      * @throws Exception might error when reading/writing/opening files, parsing JSON
      */
     public static void main(final String[] args) throws Exception {
-        Simulator simulator = Simulator.getInstance();
+        Simulator simulator = new Simulator();
         simulator.init();
         simulator.parseInput(new FileReader(args[0]));
         simulator.obtainConsumers();

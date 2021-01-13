@@ -3,6 +3,15 @@ package strategies;
 import utils.Utils;
 
 public final class StrategyFactory {
+    private static final StrategyFactory INSTANCE = new StrategyFactory();
+
+    private StrategyFactory() {
+
+    }
+    public static StrategyFactory getINSTANCE() {
+        return INSTANCE;
+    }
+
     /**
      * creeaza o noua strategie in functie de
      * cerintele utilizatorului

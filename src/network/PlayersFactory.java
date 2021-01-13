@@ -2,7 +2,16 @@ package network;
 
 import utils.Utils;
 
-public class PlayersFactory {
+public final class PlayersFactory {
+    private static final PlayersFactory INSTANCE = new PlayersFactory();
+
+    public static PlayersFactory getINSTANCE() {
+        return INSTANCE;
+    }
+
+    private PlayersFactory() {
+    }
+
     /**
      * creeaza un nou jucator in sistemul energetic in functie de tip
      * @param type tipul jucatorului (consumator, distribuitor, producator)

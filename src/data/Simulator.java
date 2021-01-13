@@ -25,7 +25,6 @@ import java.util.Collections;
 
 public final class Simulator {
     private JSONParser jsonParser;
-    private static final Simulator INSTANCE = new Simulator();
     private long numberOfTurns;
     private JSONObject initialData;
     private JSONArray monthlyUpdates;
@@ -89,8 +88,6 @@ public final class Simulator {
         this.distributorDB = distributorDB;
     }
 
-    private Simulator() {
-    }
 
     /**
      * la fiecare rulare, initializam atributele pe care le
@@ -103,10 +100,7 @@ public final class Simulator {
         distributorDB = new DistributorDB();
         producerDB = new ProducerDB();
     }
-    public static Simulator getInstance() {
-        return INSTANCE;
-    }
-
+    
     /**
      * calculeaza atributele pentru principalele componente ale fisierului JSON
      * @param fileReader fisierul din care se parcurge
@@ -127,7 +121,7 @@ public final class Simulator {
         JSONArray jsonArray = (JSONArray) initialData.get(Utils.CONSUMERS);
         for (Object object : jsonArray) {
             JSONObject jsonObject = (JSONObject) object;
-            PlayersFactory playersFactory = new PlayersFactory();
+            PlayersFactory playersFactory = PlayersFactory.getINSTANCE();
             Player player = playersFactory.createPlayer(Utils.CONSUMERS);
             long id = (long) jsonObject.get(Utils.ID);
             long initialBudget = (long) jsonObject.get(Utils.INITIAL_BUDGET);
@@ -146,7 +140,7 @@ public final class Simulator {
         JSONArray jsonArray = (JSONArray) initialData.get(Utils.DISTRIBUTORS);
         for (Object object : jsonArray) {
             JSONObject jsonObject = (JSONObject) object;
-            PlayersFactory playersFactory = new PlayersFactory();
+            PlayersFactory playersFactory = PlayersFactory.getINSTANCE();
             Player player = playersFactory.createPlayer(Utils.DISTRIBUTORS);
             long id = (long) jsonObject.get(Utils.ID);
             long initialBudget = (long) jsonObject.get(Utils.INITIAL_BUDGET);
@@ -154,7 +148,7 @@ public final class Simulator {
             long infrastructureCost = (long) jsonObject.get(Utils.INITIAL_INFRASTRUCTURE_COST);
             long energy = (long) jsonObject.get(Utils.ENERGY_NEEDED);
             String type = (String) jsonObject.get(Utils.PRODUCER_STRATEGY);
-            StrategyFactory strategyFactory = new StrategyFactory();
+            StrategyFactory strategyFactory = StrategyFactory.getINSTANCE();
             Strategy strategy = strategyFactory.createStrategy(type);
             EnergyChoiceStrategyType strategyType = EnergyChoiceStrategyType.convertString(type);
 
@@ -176,7 +170,7 @@ public final class Simulator {
         JSONArray jsonArray = (JSONArray) initialData.get(Utils.PRODUCERS);
         for (Object object : jsonArray) {
             JSONObject jsonObject = (JSONObject) object;
-            PlayersFactory playersFactory = new PlayersFactory();
+            PlayersFactory playersFactory = PlayersFactory.getINSTANCE();
             Player player = playersFactory.createPlayer(Utils.PRODUCER);
             long id = (long) jsonObject.get(Utils.ID);
             String type = (String) jsonObject.get(Utils.ENERGY_TYPE);
@@ -208,7 +202,7 @@ public final class Simulator {
         JSONArray distributorChanges = (JSONArray) element.get(Utils.DISTRIBUTOR_CHANGES);
         for (Object object : newConsumers) {
             JSONObject jsonObject = (JSONObject) object;
-            PlayersFactory playersFactory = new PlayersFactory();
+            PlayersFactory playersFactory = PlayersFactory.getINSTANCE();
             Player player = playersFactory.createPlayer(Utils.CONSUMERS);
             Consumer consumer = (Consumer) player;
             long id = (long) jsonObject.get(Utils.ID);
