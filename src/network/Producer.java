@@ -88,4 +88,8 @@ public final class Producer extends Player {
         this.energy = energy;
     }
 
+    public boolean getRenewable() {
+        return energyType.isRenewable();
+    }
+
 }

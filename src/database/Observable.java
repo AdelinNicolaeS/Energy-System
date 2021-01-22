@@ -3,12 +3,13 @@ package database;
 import network.Distributor;
 import network.Producer;
 
+import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
 
 
 public abstract class Observable {
-    private Set<Distributor> observers = new TreeSet<>(new IDSort());
+    private Set<Distributor> observers = new TreeSet<>(Comparator.comparing(Distributor::getId));
 
     public final Set<Distributor> getObservers() {
         return observers;

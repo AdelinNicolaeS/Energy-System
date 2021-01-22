@@ -2,6 +2,9 @@ package strategies;
 
 import database.ProducerDB;
 import network.Distributor;
+import network.Producer;
+
+import java.util.Comparator;
 
 public class QuantityStrategy implements Strategy {
     @Override
@@ -9,7 +12,8 @@ public class QuantityStrategy implements Strategy {
         int countEnergy = 0, i = 0;
         ProducerDB db = new ProducerDB(distributor.getProducerDB().getProducersList());
         db.getProducersList().removeIf((v) -> v.getMaxDistributors() == v.getDistributors());
-        db.getProducersList().sort(new QuantitySort());
+        db.getProducersList().sort(Comparator.comparing(Producer::getEnergy).reversed()
+                                           .thenComparing(Producer::getId));
         while (distributor.getEnergy() > countEnergy) {
             countEnergy += db.getProducersList().get(i).getEnergy();
             i++;
